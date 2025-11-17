@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CampusCars • Final</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <!-- Header -->
+    <header class="site-header">
+      <div class="wrap row">
+        <h1 class="brand">CampusCars</h1>
+        <nav class="right toolbar">
+          <a class="pill" href="#" id="openProfile">Profile</a>
+          <span id="authArea"></span>
+        </nav>
+      </div>
+    </header>
+
+    <main class="wrap">
+      <!-- Project note -->
+      <div class="note">
+        CampusCars is a student-to-student used car marketplace. Sign in with
+        your <strong>.edu</strong> email to post. Contact sellers via email (no
+        in‑app messaging). Design matches the submitted proposal.
+      </div>
+
+      <!-- Search + Create -->
+      <section class="hero">
+        <!-- Search panel -->
+        <div class="panel">
+          <div class="label">Search</div>
+          <div class="filters">
+            <input id="q" placeholder="Search make/model (e.g., Honda Civic)" />
+            <input id="minPrice" type="number" placeholder="Min $" />
+            <input id="maxPrice" type="number" placeholder="Max $" />
+          </div>
+          <div class="toolbar mtop">
+            <button class="btn ghost" id="clearFilters">Clear</button>
+            <button class="btn solid" id="applyFilters">Search</button>
+          </div>
+        </div>
+
+        <!-- Create Listing panel -->
+        <div class="panel" id="createPanel">
+          <div class="label">
+            Create Listing (sign‑in + email verification required)
+          </div>
+          <div class="inputs">
+            <input id="title" placeholder="Title (e.g., 2012 Honda Civic LX)" />
+            <input id="price" type="number" placeholder="Price ($)" />
+            <input id="make" placeholder="Make" />
+            <input id="model" placeholder="Model" />
+            <input id="year" type="number" placeholder="Year" />
+            <input id="mileage" type="number" placeholder="Mileage" />
+            <select id="condition">
+              <option value="">Condition</option>
+              <option>Excellent</option>
+              <option>Good</option>
+              <option>Fair</option>
+              <option>Needs Work</option>
+            </select>
+            <input
+              id="location"
+              placeholder="Location (e.g., near Campus Center)" />
+            <input id="photo" type="file" accept="image/*" />
+            <textarea
+              id="description"
+              placeholder="Short description (new brakes, clean title, etc.)"></textarea>
+          </div>
+          <div class="toolbar mtop">
+            <button class="btn solid" id="postBtn">Post Listing</button>
+            <button class="btn ghost hide" id="cancelEditBtn">
+              Cancel Edit
+            </button>
+            <span class="muted" id="postHint"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Feed -->
+      <section>
+        <div class="row between m8">
+          <h2 class="h2">Listings</h2>
+          <span class="muted" id="count"></span>
+        </div>
+        <div id="grid" class="grid"></div>
+      </section>
+
+      <!-- Footer -->
+      <footer class="wrap footer">
+        <div class="muted small">
+          No payments. Meet in public campus areas. Use common‑sense safety.
+        </div>
+      </footer>
+    </main>
+
+    <!-- Profile Modal -->
+    <dialog id="profileDlg">
+      <form method="dialog" class="panel" style="min-width: min(520px, 90vw)">
+        <div class="label">Your Profile</div>
+        <div class="inputs">
+          <input id="profName" placeholder="Full name" />
+          <input id="profSchool" placeholder="School (e.g., IU Indianapolis)" />
+          <input id="profGrad" type="number" placeholder="Graduation year" />
+        </div>
+        <div class="toolbar mtop">
+          <button class="btn solid" id="saveProfile" type="button">Save</button>
+          <button class="btn ghost" value="cancel">Close</button>
+          <span class="muted" id="profNote"></span>
+        </div>
+      </form>
+    </dialog>
+
+    <!-- Firebase App -->
+    <script type="module" src="app.js"></script>
+  </body>
+</html>
