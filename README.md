@@ -98,7 +98,7 @@ If your Web4 is a basic static host:
 
 ## 7) Links
 - **Live (Firebase or Web4):** _add your deployed URL here_
-- **GitHub repo:** _add your repo URL here_
+- **GitHub repo:** https://llallas.github.io/CampusCarsFinal/ 
 
 ---
 
