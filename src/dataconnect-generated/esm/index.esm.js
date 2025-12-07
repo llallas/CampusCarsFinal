@@ -2,7 +2,7 @@ import { queryRef, executeQuery, mutationRef, executeMutation, validateArgs } fr
 
 export const connectorConfig = {
   connector: 'example',
-  service: 'campuscarsfinalgithub',
+  service: 'campuscarsfinal',
   location: 'us-east4'
 };
 

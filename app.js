@@ -1,6 +1,5 @@
 // CampusCars — Final (Firebase). No admin/favorites/messaging; email contact only.
-// Super-simple, commented, and matches proposal/prototype styling.
-// IMPORTANT: Replace firebaseConfig below with your Firebase web app config (NOT service account).
+// Uses CDN module imports. Must be served from a local server / Web4 / Firebase Hosting (not file://).
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
 import {
@@ -32,33 +31,41 @@ import {
   getDownloadURL,
 } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-storage.js";
 
-// === Firebase Web SDK (client) ===
-// NOTE: Do NOT paste the Node.js Admin SDK/serviceAccount in a website. That is for server code only.
-// Get your web config from Firebase Console → Project settings → Web app.
+// -------------------- Firebase config (YOUR project) --------------------
 const firebaseConfig = {
   apiKey: "AIzaSyBRJa4MTddmv9UyJZDMccxg0lk6_XmTLHQ",
   authDomain: "campuscars-e63d7.firebaseapp.com",
   projectId: "campuscars-e63d7",
+  // If uploads fail, switch this to "campuscars-e63d7.appspot.com"
   storageBucket: "campuscars-e63d7.firebasestorage.app",
   messagingSenderId: "483198189567",
   appId: "1:483198189567:web:33512f1e261cfd7fa671ca",
   measurementId: "G-J4L37CR7P8",
 };
+// -----------------------------------------------------------------------
 
-// Init Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-// DOM helpers
+// -------- DOM helpers / state ----------
 const $ = (s) => document.querySelector(s);
 let editingId = null;
 
-// Simple .edu check (client-side convenience, not security)
+// Show status/errors under the Post button and in console
+const showMsg = (text, type = "info") => {
+  const el = document.getElementById("postHint");
+  if (!el) return;
+  el.textContent = text;
+  el.style.color = type === "error" ? "#ff9a9a" : "#9fb3d9";
+  console[type === "error" ? "error" : "log"](text);
+};
+
+// Basic .edu check (UX only; not security)
 const emailIsEdu = (email) => /\.(edu)$/i.test(email);
 
-// Render sign-in / sign-up UI
+// -------- Auth UI ----------
 function renderAuth(user) {
   const area = $("#authArea");
   area.innerHTML = "";
@@ -75,6 +82,7 @@ function renderAuth(user) {
       try {
         await signInWithEmailAndPassword(auth, email, pw);
       } catch (e) {
+        showMsg("Error: " + e.message, "error");
         alert(e.message);
       }
     };
@@ -82,14 +90,17 @@ function renderAuth(user) {
       const email = $("#email").value.trim();
       const pw = $("#pw").value.trim();
       if (!emailIsEdu(email)) {
+        showMsg("Please use a .edu email", "error");
         alert("Please use a .edu email");
         return;
       }
       try {
         const cred = await createUserWithEmailAndPassword(auth, email, pw);
         await sendEmailVerification(cred.user);
+        showMsg("Account created. Verify your email, then sign in again.");
         alert("Account created. Please verify your email (check inbox).");
       } catch (e) {
+        showMsg("Error: " + e.message, "error");
         alert(e.message);
       }
     };
@@ -106,11 +117,12 @@ function renderAuth(user) {
   }
 }
 
-// Profile modal (saved partly in Firebase user profile, partly local for simplicity)
+// -------- Profile modal ----------
 $("#openProfile").addEventListener("click", (e) => {
   e.preventDefault();
   const u = auth.currentUser;
   if (!u) {
+    showMsg("Sign in first.", "error");
     alert("Sign in first.");
     return;
   }
@@ -129,11 +141,12 @@ $("#saveProfile").addEventListener("click", async () => {
     $("#profNote").textContent = "Saved!";
     setTimeout(() => $("#profileDlg").close(), 600);
   } catch (e) {
+    showMsg("Error: " + e.message, "error");
     alert(e.message);
   }
 });
 
-// Enable/disable form based on auth + email verification
+// -------- Form enable/disable ----------
 function refreshFormState(user, editing) {
   const disabled = !user || !user.emailVerified;
   [
@@ -149,9 +162,7 @@ function refreshFormState(user, editing) {
     "description",
   ].forEach((id) => {
     const el = document.getElementById(id);
-    if (el) {
-      el.disabled = disabled;
-    }
+    if (el) el.disabled = disabled;
   });
   document.getElementById("postBtn").disabled = disabled;
   document.getElementById("cancelEditBtn").classList.toggle("hide", !editing);
@@ -164,7 +175,7 @@ function refreshFormState(user, editing) {
     : "";
 }
 
-// Upload photo to Storage and get URL
+// -------- Storage upload ----------
 async function uploadImage(ownerUid, listingId, file) {
   if (!file) return "";
   const storagePath = `cars/${ownerUid}/${listingId}/${file.name}`;
@@ -173,16 +184,20 @@ async function uploadImage(ownerUid, listingId, file) {
   return await getDownloadURL(r);
 }
 
-// Create listing
+// -------- Create listing (throws on errors) ----------
 async function createListing() {
   const u = auth.currentUser;
-  if (!u) return alert("Sign in first");
+  if (!u) throw new Error("Please sign in first.");
+  if (!u.emailVerified)
+    throw new Error("Please verify your email, then sign in again.");
+
   const required = ["title", "price", "make", "model", "year"];
   for (const id of required) {
     if (!document.getElementById(id).value.trim()) {
-      return alert("Please fill in title, price, make, model, and year.");
+      throw new Error("Please fill in title, price, make, model, and year.");
     }
   }
+
   const file = document.getElementById("photo").files[0];
   const data = {
     ownerUid: u.uid,
@@ -201,20 +216,27 @@ async function createListing() {
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   };
+
   const docRef = await addDoc(collection(db, "listings"), data);
+
   if (file) {
     const url = await uploadImage(u.uid, docRef.id, file);
     await updateDoc(docRef, { photoURL: url, updatedAt: serverTimestamp() });
   }
+
   clearForm();
   await loadAndRender();
+  showMsg("Saved ✔");
 }
 
-// Edit existing listing
+// -------- Save edit (throws on errors) ----------
 async function saveEdit() {
   if (!editingId) return createListing();
   const u = auth.currentUser;
-  if (!u) return alert("Sign in first");
+  if (!u) throw new Error("Please sign in first.");
+  if (!u.emailVerified)
+    throw new Error("Please verify your email, then sign in again.");
+
   const file = document.getElementById("photo").files[0];
   let data = {
     title: document.getElementById("title").value.trim(),
@@ -235,9 +257,10 @@ async function saveEdit() {
   await updateDoc(doc(db, "listings", editingId), data);
   clearForm();
   await loadAndRender();
+  showMsg("Saved ✔");
 }
 
-// Mark as sold / Delete
+// -------- Mark sold / Delete ----------
 async function markSold(id, value) {
   await updateDoc(doc(db, "listings", id), {
     isSold: value,
@@ -251,7 +274,7 @@ async function deleteListing(id) {
   await loadAndRender();
 }
 
-// Clear form
+// -------- Clear form ----------
 function clearForm() {
   [
     "title",
@@ -276,7 +299,7 @@ function clearForm() {
   refreshFormState(auth.currentUser, false);
 }
 
-// Search filters (client-side)
+// -------- Client-side filters ----------
 function filterInMemory(list) {
   const qTxt = document.getElementById("q").value.trim().toLowerCase();
   const min = Number(document.getElementById("minPrice").value || 0);
@@ -296,7 +319,7 @@ function filterInMemory(list) {
   });
 }
 
-// Render cards
+// -------- Load + render grid ----------
 async function loadAndRender() {
   const qRef = query(
     collection(db, "listings"),
@@ -390,15 +413,28 @@ async function loadAndRender() {
   });
 }
 
-// Wire up
-document
-  .getElementById("postBtn")
-  .addEventListener("click", () => (editingId ? saveEdit() : createListing()));
+// -------- Buttons / events ----------
+document.getElementById("postBtn").addEventListener("click", async () => {
+  try {
+    if (editingId) {
+      await saveEdit();
+    } else {
+      await createListing();
+    }
+    showMsg("Saved ✔");
+  } catch (e) {
+    showMsg("Error: " + (e?.message || e), "error");
+    alert("Error: " + (e?.message || e));
+  }
+});
+
 document.getElementById("cancelEditBtn").addEventListener("click", () => {
   editingId = null;
   clearForm();
   refreshFormState(auth.currentUser, false);
+  showMsg("");
 });
+
 document
   .getElementById("applyFilters")
   .addEventListener("click", loadAndRender);
@@ -409,7 +445,7 @@ document.getElementById("clearFilters").addEventListener("click", () => {
   loadAndRender();
 });
 
-// Auth state
+// -------- Auth state listener ----------
 onAuthStateChanged(auth, (user) => {
   renderAuth(user);
   refreshFormState(user, !!editingId);

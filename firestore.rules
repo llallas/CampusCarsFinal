@@ -1,13 +1,9 @@
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
-    function isSignedIn() { return request.auth != null; }
-    function isOwner(uid) { return request.auth != null && request.auth.uid == uid; }
-
-    match /listings/{id} {
-      allow read: if true;
-      allow create: if isSignedIn();
-      allow update, delete: if isSignedIn() && isOwner(resource.data.ownerUid);
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }
