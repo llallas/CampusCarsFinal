@@ -78,17 +78,8 @@ Add the Firebase Hosting URL to this README.
 
 ---
 
-## 5) Setup (Web4 server) — static hosting
-If your Web4 is a basic static host:
-- Upload `index.html`, `styles.css`, and `app.js` to your Web4 public folder.
-- Since `app.js` uses ES module imports and talks to Firebase over HTTPS, it should work.
-- Add your Web4 URL to this README.
 
-> You still need a Firebase project for Auth/Firestore/Storage. Web4 is only the file host.
-
----
-
-## 6) Dev Notes (keep it simple)
+## 5) Dev Notes (keep it simple)
 - Code uses **vanilla JS** and is heavily commented.
 - No heavy libraries or build step.
 - UI matches the wireframes: header, search panel, create panel, grid cards, clean spacing.
@@ -96,13 +87,13 @@ If your Web4 is a basic static host:
 
 ---
 
-## 7) Links
-- **Live (Firebase or Web4):** _add your deployed URL here_
+## 6) Links
+- **Live (Firebase:** _add your deployed URL here_
 - **GitHub repo:** https://llallas.github.io/CampusCarsFinal/ 
 
 ---
 
-## 8) Screens / Instructor Checklist
+## 7) Screens / Instructor Checklist
 - Auth with .edu email and email verification ✔
 - Listings CRUD (create/read/update/delete) ✔
 - Photo upload to Storage ✔
@@ -114,14 +105,14 @@ If your Web4 is a basic static host:
 
 ---
 
-## 9) Security Notes
+## 8) Security Notes
 - Rules restrict write/edit/delete to the listing owner.
 - Email domain checks in the client are for UX only—do not treat as security.
 - Never put your **service account** or **admin SDK** in frontend code.
 
 ---
 
-## 10) File Map
+## 9) File Map
 ```
 index.html         # UI structure (header, panels, grid, dialog)
 styles.css         # styling (mobile-first)
