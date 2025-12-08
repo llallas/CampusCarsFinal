@@ -64,19 +64,7 @@ A simple, student-friendly used-car marketplace for campus communities. Matches 
 5. In **Firestore Rules**, paste the contents of `firestore.rules` and **Publish**.
 6. In **Storage Rules**, paste the contents of `storage.rules` and **Publish**.
 
-**Run locally** (for ES module imports):
-- Use VS Code Live Server or `npx serve` from the project folder.
 
-**Deploy (Firebase Hosting):**
-```
-npm i -g firebase-tools
-firebase login
-firebase init hosting     # select your project; public: .
-firebase deploy
-```
-Add the Firebase Hosting URL to this README.
-
----
 
 
 ## 5) Dev Notes (keep it simple)
@@ -88,7 +76,7 @@ Add the Firebase Hosting URL to this README.
 ---
 
 ## 6) Links
-- **Live (Firebase:** _add your deployed URL here_
+- **Live (Web4:** https://in-info-web4.luddy.indianapolis.iu.edu/~eliarria/CampusCarsFinal/
 - **GitHub repo:** https://llallas.github.io/CampusCarsFinal/ 
 
 ---
